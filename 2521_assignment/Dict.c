@@ -34,6 +34,7 @@ Dict newDict()
 WFreq *DictInsert(Dict d, char *w)
 {
    // TODO
+   Link curr = d->tree;
    return NULL;
 }
 
