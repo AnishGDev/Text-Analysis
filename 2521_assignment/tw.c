@@ -22,6 +22,7 @@
 #define ENDING   "*** END OF"
 
 #define isWordChar(c) (isalnum(c) || (c) == '\'' || (c) == '-')
+char * tokenise(char word[]);
 
 int main( int argc, char *argv[])
 {
@@ -38,6 +39,8 @@ int main( int argc, char *argv[])
 
    char   line[MAXLINE];  // current input line
    char   word[MAXWORD];  // current word
+
+   char *delimiters = " `~!@#$%^&*()_+-={[]}|\\;:\",<>./?\n\r";
    // process command-line args
 
    switch (argc) {
@@ -63,19 +66,33 @@ int main( int argc, char *argv[])
    }
 
    // build stopword dictionary
-
+   wfreqs = newDict();
+   stopwords = newDict();
+   results = NULL;
+   word[0] = 'a';
    // TODO
 
    // scan File, up to start of text
-   while(fgets(line,100,in) != NULL && strncmp(line, "***", 3)) {
+   while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
       if (!strncmp(line, "***", 3)) break;
    }
    // TODO
 
    // scan File reading words and accumualting counts
    // According to Project Gutenberg, 70 characters per line
-   while(fgets(line,100,in) != NULL && strncmp(line, "***", 3)) {
-      printf("%s",line);
+   // Token could be NULL. Check that.
+   while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
+      //printf("The string is : %s\n", line);
+      char *token = strtok(line, delimiters);
+      while(token != NULL) {
+         printf("%s ", token);
+         token = strtok(NULL, delimiters);
+         DictInsert(wfreqs,token);
+      }
+      printf("\n");
+      //printf("%s",line);
+      //char * test = strtok(line, delimiters);
+      //printf("%s",test);
    }
 
    // TODO
@@ -88,3 +105,10 @@ int main( int argc, char *argv[])
    fclose(in);
    return EXIT_SUCCESS;
 }
+/*
+void tokenise(char word[]) {
+   int end = stem(word, 0, strlen(end)-1);
+   word[end+1] = '\0';
+   return word;
+}
+*/

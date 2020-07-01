@@ -68,14 +68,15 @@ int m()
    int i = k0;
    while(TRUE)
    {  if (i > j) return n;
-      if (! cons(i)) break; i++;
+      if (! cons(i)) break;
+      i++;
    }
    i++;
    while(TRUE)
    {  while(TRUE)
       {  if (i > j) return n;
-            if (cons(i)) break;
-            i++;
+         if (cons(i)) break;
+         i++;
       }
       i++;
       n++;
@@ -91,7 +92,8 @@ int m()
 /* vowelinstem() is TRUE <=> k0,...j contains a vowel */
 
 int vowelinstem()
-{  int i; for (i = k0; i <= j; i++) if (! cons(i)) return TRUE;
+{  int i;
+   for (i = k0; i <= j; i++) if (! cons(i)) return TRUE;
    return FALSE;
 }
 
@@ -199,38 +201,38 @@ void step1c() { if (ends("\01" "y") && vowelinstem()) b[k] = 'i'; }
 
 void step2() { switch (b[k-1])
 {
-    case 'a': if (ends("\07" "ational")) { r("\03" "ate"); break; }
-              if (ends("\06" "tional")) { r("\04" "tion"); break; }
+    case 'a': if (ends("\07" "ational")) { r("\03" "ate");  break; }
+              if (ends("\06" "tional"))  { r("\04" "tion"); break; }
               break;
-    case 'c': if (ends("\04" "enci")) { r("\04" "ence"); break; }
-              if (ends("\04" "anci")) { r("\04" "ance"); break; }
+    case 'c': if (ends("\04" "enci"))    { r("\04" "ence"); break; }
+              if (ends("\04" "anci"))    { r("\04" "ance"); break; }
               break;
-    case 'e': if (ends("\04" "izer")) { r("\03" "ize"); break; }
+    case 'e': if (ends("\04" "izer"))    { r("\03" "ize");  break; }
               break;
-    case 'l': if (ends("\03" "bli")) { r("\03" "ble"); break; } /*-DEPARTURE-*/
+    case 'l': if (ends("\03" "bli"))     { r("\03" "ble");  break; } /*-DEPARTURE-*/
 
  /* To match the published algorithm, replace this line with
     case 'l': if (ends("\04" "abli")) { r("\04" "able"); break; } */
 
-              if (ends("\04" "alli")) { r("\02" "al"); break; }
-              if (ends("\05" "entli")) { r("\03" "ent"); break; }
-              if (ends("\03" "eli")) { r("\01" "e"); break; }
-              if (ends("\05" "ousli")) { r("\03" "ous"); break; }
+              if (ends("\04" "alli"))    { r("\02" "al");   break; }
+              if (ends("\05" "entli"))   { r("\03" "ent");  break; }
+              if (ends("\03" "eli"))     { r("\01" "e");    break; }
+              if (ends("\05" "ousli"))   { r("\03" "ous");  break; }
               break;
-    case 'o': if (ends("\07" "ization")) { r("\03" "ize"); break; }
-              if (ends("\05" "ation")) { r("\03" "ate"); break; }
-              if (ends("\04" "ator")) { r("\03" "ate"); break; }
+    case 'o': if (ends("\07" "ization")) { r("\03" "ize");  break; }
+              if (ends("\05" "ation"))   { r("\03" "ate");  break; }
+              if (ends("\04" "ator"))    { r("\03" "ate");  break; }
               break;
-    case 's': if (ends("\05" "alism")) { r("\02" "al"); break; }
-              if (ends("\07" "iveness")) { r("\03" "ive"); break; }
-              if (ends("\07" "fulness")) { r("\03" "ful"); break; }
-              if (ends("\07" "ousness")) { r("\03" "ous"); break; }
+    case 's': if (ends("\05" "alism"))   { r("\02" "al");   break; }
+              if (ends("\07" "iveness")) { r("\03" "ive");  break; }
+              if (ends("\07" "fulness")) { r("\03" "ful");  break; }
+              if (ends("\07" "ousness")) { r("\03" "ous");  break; }
               break;
-    case 't': if (ends("\05" "aliti")) { r("\02" "al"); break; }
-              if (ends("\05" "iviti")) { r("\03" "ive"); break; }
-              if (ends("\06" "biliti")) { r("\03" "ble"); break; }
+    case 't': if (ends("\05" "aliti"))   { r("\02" "al");   break; }
+              if (ends("\05" "iviti"))   { r("\03" "ive");  break; }
+              if (ends("\06" "biliti"))  { r("\03" "ble");  break; }
               break;
-    case 'g': if (ends("\04" "logi")) { r("\03" "log"); break; } /*-DEPARTURE-*/
+    case 'g': if (ends("\04" "logi"))    { r("\03" "log");  break; } /*-DEPARTURE-*/
 
  /* To match the published algorithm, delete this line */
 
@@ -241,15 +243,15 @@ void step2() { switch (b[k-1])
 void step3() { switch (b[k])
 {
     case 'e': if (ends("\05" "icate")) { r("\02" "ic"); break; }
-              if (ends("\05" "ative")) { r("\00" ""); break; }
+              if (ends("\05" "ative")) { r("\00" "");   break; }
               if (ends("\05" "alize")) { r("\02" "al"); break; }
               break;
     case 'i': if (ends("\05" "iciti")) { r("\02" "ic"); break; }
               break;
-    case 'l': if (ends("\04" "ical")) { r("\02" "ic"); break; }
-              if (ends("\03" "ful")) { r("\00" ""); break; }
+    case 'l': if (ends("\04" "ical"))  { r("\02" "ic"); break; }
+              if (ends("\03" "ful"))   { r("\00" "");   break; }
               break;
-    case 's': if (ends("\04" "ness")) { r("\00" ""); break; }
+    case 's': if (ends("\04" "ness"))  { r("\00" "");   break; }
               break;
 } }
 
@@ -257,29 +259,41 @@ void step3() { switch (b[k])
 
 void step4()
 {  switch (b[k-1])
-    {  case 'a': if (ends("\02" "al")) break; return;
-       case 'c': if (ends("\04" "ance")) break;
-                 if (ends("\04" "ence")) break; return;
-       case 'e': if (ends("\02" "er")) break; return;
-       case 'i': if (ends("\02" "ic")) break; return;
-       case 'l': if (ends("\04" "able")) break;
-                 if (ends("\04" "ible")) break; return;
-       case 'n': if (ends("\03" "ant")) break;
-                 if (ends("\05" "ement")) break;
-                 if (ends("\04" "ment")) break;
-                 if (ends("\03" "ent")) break; return;
-       case 'o': if (ends("\03" "ion") && (b[j] == 's' || b[j] == 't')) break;
-                 if (ends("\02" "ou")) break; return;
-                 /* takes care of -ous */
-       case 's': if (ends("\03" "ism")) break; return;
-       case 't': if (ends("\03" "ate")) break;
-                 if (ends("\03" "iti")) break; return;
-       case 'u': if (ends("\03" "ous")) break; return;
-       case 'v': if (ends("\03" "ive")) break; return;
-       case 'z': if (ends("\03" "ize")) break; return;
-       default: return;
-    }
-    if (m() > 1) k = j;
+   {  case 'a': if (ends("\02" "al"))    break;
+                return;
+      case 'c': if (ends("\04" "ance"))  break;
+                if (ends("\04" "ence"))  break;
+                return;
+      case 'e': if (ends("\02" "er"))    break;
+                return;
+      case 'i': if (ends("\02" "ic"))    break;
+                return;
+      case 'l': if (ends("\04" "able"))  break;
+                if (ends("\04" "ible"))  break;
+                return;
+      case 'n': if (ends("\03" "ant"))   break;
+                if (ends("\05" "ement")) break;
+                if (ends("\04" "ment"))  break;
+                if (ends("\03" "ent"))   break;
+                return;
+      case 'o': if (ends("\03" "ion") && (b[j] == 's' || b[j] == 't')) break;
+                if (ends("\02" "ou"))    break;
+                return;
+                /* takes care of -ous */
+      case 's': if (ends("\03" "ism"))   break;
+                return;
+      case 't': if (ends("\03" "ate"))   break;
+                if (ends("\03" "iti"))   break;
+                return;
+      case 'u': if (ends("\03" "ous"))   break;
+                return;
+      case 'v': if (ends("\03" "ive"))   break;
+                return;
+      case 'z': if (ends("\03" "ize"))   break;
+                return;
+      default:  return;
+   }
+   if (m() > 1) k = j;
 }
 
 /* step5() removes a final -e if m() > 1, and changes -ll to -l if
@@ -313,4 +327,3 @@ int stem(char * p, int i, int j)
    step1ab(); step1c(); step2(); step3(); step4(); step5();
    return k;
 }
-
