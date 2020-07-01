@@ -22,7 +22,7 @@ struct _DictRep {
 };
 // Defining Custom Helper Functions.
 Link createNewNode(char *w);
-Link insertRecursivelyHelper(Link currNode, char *w); 
+Link insertRecursivelyHelper(Link currNode, char *w, WFreq **insertedWord); 
 int calculateHeight(Link currNode);
 int max(int a, int b);
 // Defining balancer helper functions makes code cleaner and easier to read.
@@ -31,6 +31,8 @@ Link balancer_RightLeft(Link currNode);
 Link balancer_LeftRight(Link currNode);
 Link balancer_RightLeft(Link currNode);
 
+
+int height(Link n);
 // create new empty Dictionary
 Dict newDict()
 {
@@ -68,29 +70,85 @@ Link createNewNode(char *w) {
    newNode->data.freq = 1;
    return newNode;
 }
+Link rotateLeft(Link n) {
+    // TODO: Add your code here and change
+    //       the return statement if needed
+    if (n== NULL || n->right == NULL) return n;
+    Link newRoot = n->right;
+    if (newRoot != NULL) {
+        n->right = newRoot->left;
+        newRoot->left = n;
+        if (n->right != NULL || n->left != NULL) {
+            n->height = 1 + max(height(n->right), height(n->left));
+        } else {
+            n->height = 0;
+        }
+        newRoot->height = 1+max(height(newRoot->right), height(newRoot->left));
+    }
+    return newRoot;
+}
+int height(Link n) {
+    if (n == NULL) {
+        return -1;
+    } else {
+        return n->height;
+    }
+}
+Link rotateRight(Link n) {
+    // TODO: Add your code here and change
+    //       the return statement if needed
+    // Added null case.
+    if (n== NULL || n->left == NULL) return n;
+    Link newRoot = n->left;
+    if (newRoot != NULL) {
+        n->left = newRoot->right;
+        newRoot->right = n;
+        if (n->right != NULL || n->left != NULL) {
+            n->height = 1 + max(height(n->right), height(n->left));
+        } else {
+            n->height = 0;
+        }
+        newRoot->height = 1+max(height(newRoot->right), height(newRoot->left));
+    }
+    return newRoot;
+}
 
-Link insertRecursivelyHelper(Link currNode, char *w, wFreq *insertedWord) {
+Link insertRecursivelyHelper(Link currNode, char *w, WFreq **insertedWord) {
    if (currNode == NULL) {
       // Insert the node. 
       Link n = createNewNode(w);
-      insertedWord = &(n->data)
+      *insertedWord = &(n->data);
       return n;
    } 
    int cmpFactor = strcmp(currNode->data.word, w);
 
    if (cmpFactor > 0) {
       // To the right.
-      currNode->right = insertRecursivelyHelper(currNode->right, w);
+      currNode->left = insertRecursivelyHelper(currNode->left, w, insertedWord);
    } else if (cmpFactor < 0) {
       // To the left. 
-      currNode->left = insertRecursivelyHelper(currNode->left, w);
+      currNode->right = insertRecursivelyHelper(currNode->right, w, insertedWord);
    } else {
       // Already exists in the tree.
+      currNode->data.freq+=1; 
       return currNode;
    }
 
    // Balance the tree
    currNode->height = 1 + max(calculateHeight(currNode->left), calculateHeight(currNode->right));
+
+
+   if (height(currNode->right) - height(currNode->left) > 1) {
+        if (currNode->right != NULL) {
+            currNode->right = rotateRight(currNode->right);
+        }
+        currNode = rotateLeft(currNode);
+    }else if (height(currNode->left) - height(currNode->right) > 1) {
+        if (currNode->left != NULL) {
+            currNode->left = rotateLeft(currNode->left);
+        }
+        currNode = rotateRight(currNode);
+    }
    return currNode; 
 }
 // insert new word into Dictionary
@@ -99,10 +157,10 @@ WFreq *DictInsert(Dict d, char *w)
 {
    // TODO
    assert(d != NULL); // Can't be inserting into a non-existent tree. 
-   wFreq *insertedWord = NULL;
-   Link ret = insertRecursivelyHelper(d->tree, insertedWord);
+   WFreq *insertedWord = NULL;
+   d->tree = insertRecursivelyHelper(d->tree, w, &insertedWord);
    // Found a place to insert. 
-   return &ret->data;
+   return insertedWord;
 }
 
 // find Word in Dictionary
@@ -113,7 +171,14 @@ WFreq *DictFind(Dict d, char *w)
    // TODO
    Link curr = d->tree; 
    while(curr != NULL) {
-      if (strcmp(curr->data.word, w) == 0) {
+      int cmpFactor = strcmp(curr->data.word, w);
+      if (cmpFactor > 0) {
+         // Left
+         curr=curr->left;
+      } else if (cmpFactor < 0) {
+         // right
+         curr = curr->right;
+      } else {
          return &curr->data;
       }
    }
