@@ -31,14 +31,14 @@ int main( int argc, char *argv[])
    FILE  *in;         // currently open file
    Dict   stopwords;  // dictionary of stopwords
    Dict   wfreqs;     // dictionary of words from book
-   WFreq *results;    // array of top N (word,freq) pairs
+  // WFreq *results;    // array of top N (word,freq) pairs
                       // (dynamically allocated)
 
    char *fileName;    // name of file containing book text
    int   nWords;      // number of top frequency words to show
 
    char   line[MAXLINE];  // current input line
-   char   word[MAXWORD];  // current word
+   //char   word[MAXWORD];  // current word
 
    char *delimiters = " `~!@#$%^&*()_+-={[]}|\\;:\",<>./?\n\r";
    // process command-line args
@@ -68,10 +68,10 @@ int main( int argc, char *argv[])
    // build stopword dictionary
    wfreqs = newDict();
    stopwords = newDict();
-   results = NULL;
-   word[0] = 'a';
+   //results = NULL;
+   //word[0] = 'a';
    // TODO
-
+   DictInsert(stopwords, "test");
    // scan File, up to start of text
    while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
       if (!strncmp(line, "***", 3)) break;
@@ -82,7 +82,7 @@ int main( int argc, char *argv[])
    // According to Project Gutenberg, 70 characters per line
    // Token could be NULL. Check that.
    while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
-      //printf("The string is : %s\n", line);
+      printf("The string is : %s\n", line);
       char *token = strtok(line, delimiters);
       while(token != NULL) {
          printf("%s ", token);

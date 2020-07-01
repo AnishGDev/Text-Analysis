@@ -52,7 +52,7 @@ int calculateHeight(Link currNode) {
    }
 }
 
-int max(a, b) {
+int max(int a, int b) {
    return a > b ? a : b;
 }
 Link createNewNode(char *w) {
@@ -69,10 +69,12 @@ Link createNewNode(char *w) {
    return newNode;
 }
 
-Link insertRecursivelyHelper(Link currNode, char *w) {
+Link insertRecursivelyHelper(Link currNode, char *w, wFreq *insertedWord) {
    if (currNode == NULL) {
       // Insert the node. 
-      return createNewNode(w);
+      Link n = createNewNode(w);
+      insertedWord = &(n->data)
+      return n;
    } 
    int cmpFactor = strcmp(currNode->data.word, w);
 
@@ -97,7 +99,8 @@ WFreq *DictInsert(Dict d, char *w)
 {
    // TODO
    assert(d != NULL); // Can't be inserting into a non-existent tree. 
-   Link ret = insertRecursivelyHelper(d->tree, w);
+   wFreq *insertedWord = NULL;
+   Link ret = insertRecursivelyHelper(d->tree, insertedWord);
    // Found a place to insert. 
    return &ret->data;
 }
