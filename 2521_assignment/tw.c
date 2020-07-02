@@ -131,7 +131,7 @@ int main( int argc, char *argv[])
    //printf("OK: %s, %d\n", results[0].word,results[0].freq);
    // TODO
    for (int i = 0; i < k; i++) {
-      printf("%d %s\n", results[i].freq, results[i].word);
+      printf("%7d %s\n", results[i].freq, results[i].word);
    }
    // done
    free(results);
