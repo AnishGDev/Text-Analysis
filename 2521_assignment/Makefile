@@ -1,7 +1,7 @@
 # COMP2521 20T2 Assignment 1
 
 CC=gcc
-CFLAGS=-Wall -pg -Werror
+CFLAGS=-Wall -g -Werror
 OBJS=tw.o Dict.o stemmer.o
 
 all : tw stem

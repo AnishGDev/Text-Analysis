@@ -24,14 +24,22 @@
 #define isWordChar(c) (isalnum(c) || (c) == '\'' || (c) == '-')
 char * tokenise(char word[]);
 
+void toLowerCase(char word[]) {
+   word[0] = tolower(word[0]);
+   int i = 1;
+   while(word[i] != '\0') {
+      word[i] = tolower(word[i]);
+      i+=1;
+   }  
+}
+
 int main( int argc, char *argv[])
 {
    // TODO ... add any variables you need
-   testDictImplementation();
    FILE  *in;         // currently open file
    Dict   stopwords;  // dictionary of stopwords
    Dict   wfreqs;     // dictionary of words from book
-  // WFreq *results;    // array of top N (word,freq) pairs
+   WFreq *results;    // array of top N (word,freq) pairs
                       // (dynamically allocated)
 
    char *fileName;    // name of file containing book text
@@ -40,7 +48,7 @@ int main( int argc, char *argv[])
    char   line[MAXLINE];  // current input line
    char   word[MAXWORD];  // current word
 
-   char *delimiters = " `~!@#$%^&*()_+-={[]}|\\;:\",<>./?\n\r";
+   char *delimiters = " `~!@#$%^&*()_+={[]}|\\;:\",<>./?\n\r";
    // process command-line args
 
    switch (argc) {
@@ -67,6 +75,8 @@ int main( int argc, char *argv[])
 
    // build stopword dictionary
    stopwords = newDict();
+
+   // ASSERT THAT FILE WAS
    in = fopen(STOPWORDS, "r");
    // fgets(word, MAXWORD, in) != NULL 
    //printf("Building stopword dictionary....\n");
@@ -77,25 +87,32 @@ int main( int argc, char *argv[])
    //printf("Stop dictionary has been built!!!!....\n");
    in = fopen(fileName, "r");
    // scan File, up to start of text
-   while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
-      if (!strncmp(line, "***", 3)) break;
+   while(fgets(line,MAXLINE,in) != NULL && strstr(line, STARTING) == NULL) {//strncmp(line, STARTING, 12)) {
+      //if (!strncmp(line, "***", 3)) break;
    }
    // TODO
-   
+
    // scan File reading words and accumualting counts
    // According to Project Gutenberg, 70 characters per line
    // Token could be NULL. Check that.
+
+   // MUST BE LOWERCASE. FIX!! (used strcasecmp in dict file. Fix this later.)
+   // Used strncmp before in here.
    wfreqs = newDict();
-   while(fgets(line,MAXLINE,in) != NULL && strncmp(line, "***", 3)) {
+   //int counter = 0;
+   while(fgets(line,MAXLINE,in) != NULL && strncmp(line, STARTING, 3)) {
       //printf("The string is : %s\n", line);
+      toLowerCase(line);
       char *token = strtok(line, delimiters);
       while(token != NULL) {
-         if (DictFind(stopwords, token) == NULL) {
-            int end = stem(token , 0, strlen(token) - 1);
+         int len = strlen(token);
+         if (DictFind(stopwords, token) == NULL && len > 1) {
+            int end = stem(token , 0, len - 1);
             token[end+1] = '\0';
             DictInsert(wfreqs,token);
          }
          // Proceed to next token
+         //printf("%s ", token);
          token = strtok(NULL, delimiters);
       }
       //printf("\n");
@@ -105,12 +122,19 @@ int main( int argc, char *argv[])
    }
 
    // TODO
-
    // compute and display the top N words
-
+   //testDictImplementation(wfreqs);
+   // ASSERT UR MALLOCS
+   results = malloc((nWords+1) * sizeof(*results));//calloc(nWords, sizeof(struct _WFreq));//malloc(nWords * sizeof(struct _WFreq));
+   assert(results != NULL);
+   int k = findTopN(wfreqs, results, nWords);
+   //printf("OK: %s, %d\n", results[0].word,results[0].freq);
    // TODO
-
+   for (int i = 0; i < k; i++) {
+      printf("%d %s\n", results[i].freq, results[i].word);
+   }
    // done
+   free(results);
    fclose(in);
    return EXIT_SUCCESS;
 }
@@ -118,6 +142,6 @@ int main( int argc, char *argv[])
 void tokenise(char word[]) {
    int end = stem(word, 0, strlen(end)-1);
    word[end+1] = '\0';
-   return word;
+   return word;ss
 }
 */

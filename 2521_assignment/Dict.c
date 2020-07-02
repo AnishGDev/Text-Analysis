@@ -23,6 +23,8 @@ struct _DictRep {
 // Defining Custom Helper Functions.
 Link createNewNode(char *w);
 Link insertRecursivelyHelper(Link currNode, char *w, WFreq **insertedWord); 
+void recursiveHelperTopN(Link currNode, WFreq * results, int *size, int max);
+void insertInOrder(WFreq * results, WFreq *nodeToInsert, int *size, int nWordSize);
 int calculateHeight(Link currNode);
 int max(int a, int b);
 // Defining balancer helper functions makes code cleaner and easier to read.
@@ -30,7 +32,8 @@ Link balancer_RightRight(Link currNode);
 Link balancer_RightLeft(Link currNode);
 Link balancer_LeftRight(Link currNode);
 Link balancer_RightLeft(Link currNode);
-
+int test(Link node);
+int lol = 0;
 
 int height(Link n);
 // create new empty Dictionary
@@ -116,6 +119,7 @@ Link rotateRight(Link n) {
 Link insertRecursivelyHelper(Link currNode, char *w, WFreq **insertedWord) {
    if (currNode == NULL) {
       // Insert the node. 
+      lol+=1;
       Link n = createNewNode(w);
       *insertedWord = &(n->data);
       return n;
@@ -137,13 +141,14 @@ Link insertRecursivelyHelper(Link currNode, char *w, WFreq **insertedWord) {
    // Balance the tree
    currNode->height = 1 + max(calculateHeight(currNode->left), calculateHeight(currNode->right));
 
-
-   if (height(currNode->right) - height(currNode->left) > 1) {
+   int leftHeight = calculateHeight(currNode->left);
+   int rightHeight = calculateHeight(currNode->right);
+   if (rightHeight - leftHeight > 1) {
         if (currNode->right != NULL) {
             currNode->right = rotateRight(currNode->right);
         }
         currNode = rotateLeft(currNode);
-    }else if (height(currNode->left) - height(currNode->right) > 1) {
+    }else if (leftHeight - rightHeight > 1) {
         if (currNode->left != NULL) {
             currNode->left = rotateLeft(currNode->left);
         }
@@ -159,7 +164,7 @@ WFreq *DictInsert(Dict d, char *w)
    assert(d != NULL); // Can't be inserting into a non-existent tree. 
    WFreq *insertedWord = NULL;
    d->tree = insertRecursivelyHelper(d->tree, w, &insertedWord);
-   // Found a place to insert. 
+   // Found a place to insert.
    return insertedWord;
 }
 
@@ -180,6 +185,7 @@ WFreq *DictFind(Dict d, char *w)
          curr = curr->right;
       } else {
          return &curr->data;
+
       }
    }
    return NULL;
@@ -188,10 +194,92 @@ WFreq *DictFind(Dict d, char *w)
 // find top N frequently occurring words in Dict
 // input: Dictionary, array of WFreqs, size of array
 // returns: #WFreqs in array, modified array
+
+// Descending order
+int binarySearch(WFreq *results, WFreq *nodeToInsert, int low, int high) {
+   if (high <= low) {
+      return (nodeToInsert->freq > results[low].freq) ? low : low+1;
+   }
+   int mid = (low + high)/2;
+   //if (nodeToInsert->freq == results[mid].freq) return mid+1;
+   if (nodeToInsert->freq <= results[mid].freq) {
+      return binarySearch(results, nodeToInsert, mid + 1, high);
+   }
+   return binarySearch(results, nodeToInsert, low, mid -1);
+}
+
+void printer(WFreq * results, int k) {
+   for (int i = 0; i < k; i++) {
+      printf("%d %s\n", results[i].freq, results[i].word);
+   }
+}
+
+void insertInOrder(WFreq *nodeToInsert, WFreq *results, int *size, int nWordSize) {
+   if (*size == 0) {
+      results[0] = *nodeToInsert; 
+      *size+=1;
+      return;
+   }
+   if (*size < nWordSize) {
+      // Insert in order, can extend arary to 0..(*size -1)
+      // If smallest than the end, and not max size then insrt at end.
+      if (nodeToInsert->freq < results[*size].freq) {
+         results[*size] = *nodeToInsert;
+      } else if ((*nodeToInsert).freq > results[0].freq) {
+         for (int i = *size; i >0; i--) {
+            results[i] = results[i-1];
+         }
+         results[0] = *nodeToInsert;
+         *size+=1;
+      } else {
+         int loc = binarySearch(results, nodeToInsert, 0, *size - 1);
+         for (int i = *size; i > loc; i--) {
+            results[i] = results[i-1];
+         }
+         results[loc] = *nodeToInsert;
+         *size+=1;
+      }
+   } else {
+      // Must insert in order
+      int loc = binarySearch(results, nodeToInsert, 0, nWordSize-1);
+      for (int i = nWordSize - 1; i > loc; i--) {
+         results[i] = results[i-1];
+      }
+      results[loc] = *nodeToInsert;
+   }
+}
+// In-order traversal. Insertion will always be lexiographic order. No need for strcmp()
+void recursiveHelperTopN(Link currNode, WFreq * results, int *size, int max) {
+   if (currNode == NULL) return;
+   recursiveHelperTopN(currNode->left, results, size, max);
+   insertInOrder(&(currNode->data), results, size, max);
+   recursiveHelperTopN(currNode->right, results, size, max);
+}
+
+int test(Link node) {
+   if (node == NULL) return 0; 
+   int kek = max(test(node->right), test(node->left));
+   return max(kek, node->data.freq);
+}
+
 int findTopN(Dict d, WFreq *wfs, int n)
 {
    // TODO
-   return 0;
+   int startingSize = 0; 
+   recursiveHelperTopN(d->tree, wfs, &startingSize, n);
+   //printf("Largest is %d", test(d->tree));
+   //printf("Top one is %s and %d \n", d->tree->data.word, d->tree->data.freq);
+   //printf("Num unique words: %d\n", lol); 
+   return startingSize;
+}
+
+void testFunc(Dict d, char * word) {
+   WFreq * t = DictFind(d, word);
+   if (t != NULL) {
+      printf("Word: %s, freq: %d \n", t->word, t->freq);
+   } else {
+      printf("Not found!");
+   }
 }
 
 // print a dictionary
@@ -201,9 +289,8 @@ void showDict(Dict d)
    return;
 }
 
-void testDictImplementation() {
-   Dict test = newDict();
-   assert(test->tree == NULL);
-
-   printf("PASSED ALL TESTS!!");
+void testDictImplementation(Dict d) {
+   printf("TESTING ==== \n");
+   testFunc(d, "time");
+   printf("PASSED ALL TESTS!!\n");
 }
